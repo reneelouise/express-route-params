@@ -1,4 +1,5 @@
 import express from "express";
+import { resourceLimits } from "worker_threads";
 
 const app = express();
 
@@ -71,8 +72,90 @@ app.get<{ name: string }>("/happy-birthday/:name", (req, res) => {
   });
 });
 
-// using 4000 by convention, but could be changed
-const PORT_NUMBER = 4000;
+
+//added route parameters
+
+//shout/hello
+
+app.get<{shout: string}>("/shout/:shout", (req, res) =>{
+  let shout= `${req.params.shout}`;
+  res.send({
+    "shout" : `${shout.toUpperCase()}!`,
+    "result" : `I am shouting back to you ${shout.toUpperCase()}!`,
+
+
+  });
+});
+
+//shout/quick-brown-fox - no need for this because it is covered above dear xx
+
+// app.get<{fox : string}>("/shout/quick-brown-fox", (req, res) =>{
+//   let brownFox = `${req.params.fox}!`;
+//   res.json({
+//     shout: `${brownFox.toUpperCase()}!`,
+//     result: `I am shouting back to you ${brownFox.toUpperCase()}!`
+//   });
+// });
+
+
+//Addition - both 2 numbers and 3 numbers
+
+app.get<{numOne: string, numTwo: string, numThree?: string}>("/add/:numOne/:numTwo/:numThree?", (req, res) => {
+  /**
+   * Note that `numOne` and `numTwo` are both typed as string.
+   * (Hover over with your mouse to see!)
+   *
+   * Route params are, by default, typed as strings when they
+   * are parsed by Express.
+   */
+  const { numOne, numTwo, numThree } = req.params;
+  let result: number;
+  let original: string;
+  let num1= parseInt(numOne);
+  let num2 = parseInt(numTwo);
+  
+  
+  if(numThree){
+    original = `${numOne} + ${numTwo} + ${numThree}`
+    result = num1 + num2 + parseInt(numThree);
+    
+  }else if(!numThree){
+    original = `${numOne} + ${numTwo}`
+    result = num1 + num2;
+  }else{
+    original = `This ain't here`
+    result = 0;
+  }
+  res.json({
+    original: original,
+    result: result,
+  });
+});
+
+
+//Eating food - paying attention to a / an (for leading vowels only)
+
+app.get<{animal : string}>("/eat/:animal", (req, res) =>{
+  let vowels: Array<string> = ['a','e','i','o','u'];
+  let animal = req.params.animal;
+  let word: string;
+  if (vowels.includes(animal[0])){
+    word = "an";
+  }
+
+  else{
+    word = "a";
+  }
+
+  res.json({
+    message: `Yum yum - you ate ${word} ${animal}`,
+
+  });
+});
+
+
+//using 4000 by convention, but could be changed
+const PORT_NUMBER = 3000;
 
 app.listen(PORT_NUMBER, () => {
   console.log(`Server is listening on ${PORT_NUMBER}`);
